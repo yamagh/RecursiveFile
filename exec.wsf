@@ -1,0 +1,4 @@
+<job id="RecursiveFile">
+    <script language="JScript" src="./RecursiveFile.js"/>
+    <script language="JScript" src="./InheritSample.js"/>
+</job>
