@@ -1,7 +1,9 @@
 # RecursiveFile
 
 ファイルを再帰的に探索して処理するためのJScript自分用ライブラリ。
-実装サンプル。
+
+
+## 実装サンプル
 
     function InheritSample(){
         RecursiveFile.apply( this, arguments );
