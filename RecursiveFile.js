@@ -1,31 +1,31 @@
 /*
  * RecursiveFile.js
- * 再帰的にファイルを探索し任意の処理を実行するためのクラス。
- * 必要に応じて次のメソッドが実装すること。
  *
- *   initialize     すべての処理の前に実行するメソッド
- *   execFile       ファイルに対する処理メソッド
- *   resolveError   ファイルに対して処理をしている最中にエラーが発生した時の処理メソッド
- *   finalize       ファイルに対する処理が全て完了した後に実行するメソッド
+ * It is a class to run the process to explore the files recursively.
+ * By implementing the following methods as necessary.
  *
- *   実装例)
+ *   initialize      Method to run before processing all
+ *   execFile(path)  The processing method to the file.
+ *   resolveError    Processing method when an error occurs while you are processing on file
+ *   finalize        Method to run after the processing for the file is complete all
+ *
+ *   Inherit Sample)
  *     function InheritClass(){
  *         RecursiveFile.apply( this, arguments );
- *         this.execFile = function(){
+ *         this.execFile = function(path){
  *             hogehoge;
  *         }
  *     };
  *
  * @author ygmh
- * @version 1.00
  */
 function RecursiveFile(){
 
     var self = this;
 
     /**
-     * ファイル探索階層深度
-     * カレントフォルダを 1 とし、辿るサブフォルダの深さを指定する。
+     * File search hierarchy depth
+     * Current folder is 1.
      */
     var depth = 255;
 
@@ -38,88 +38,88 @@ function RecursiveFile(){
     };
 
 
-    /**
-     * ファイル名マッチパターン
-     * 複数指定する場合はデリミタで区切る。
-     * パターン文字列の保持とゲッターでの返却にのみ用いる。
-     */
-    var patern = "*";
 
-    this.getPatern = function(){
-        return patern;
+    /**
+     * Match pattern of file name
+     * Separated by a delimiter if you want to specify more than one.
+     * The default delimiter is semicolon ";".
+     * Delimiter can be changed by the `setPatternDelim` method.
+     *
+     * Used only to return in the getter and the holding of the pattern string.
+     * They are stored by dividing it into "aryPattern" pattern string that is set by the "setPattern".
+     */
+    var pattern = "*";
+
+    this.getPattern = function(){
+        return pattern;
     };
     
-    this.setPatern = function(str){
-        patern = str;
+    this.setPattern = function(str){
+        pattern = str;
         str = str.replace(/(^;+|;+$|\s+)/img, "");
         str = str.replace(/\;+/img, ";");
         str = str.replace(/\*+/img, "*");
-        aryPatern = str.split(paternDelim);
-//        var e = new Enumerator( aryPatern );
-//        for(;!e.atEnd(); e.moveNext()){
-//            WScript.echo( e.item() );
-//        }
+        aryPattern = str.split(patternDelim);
     };
-    
+
+
 
     /**
-     * ファイル名マッチパターンの配列
-     * マッチング処理をしやすいよう分割しこの配列に格納して使用する。
+     * Array of file names match pattern
+     * Used to be stored in the array is divided so as to easily matching process.
      */
-    var aryPatern = new Array(patern);
-    
-    
+    var aryPattern = new Array(pattern);
+
+
+
     /**
-     * ファイル名マッチパターンデリミタ
+     * File name match pattern delimiter
      */
-    var paternDelim = ";";
+    var patternDelim = ";";
     
-    this.getPaternDelim = function(str){
-        return paternDelim;
+    this.getPatternDelim = function(str){
+        return patternDelim;
     }
     
-    this.setPaternDelim = function(str){
-        paternDelim = str;
+    this.setPatternDelim = function(str){
+        patternDelim = str;
     }
 
 
 
     /**
-     * 処理対象ファイル標準出力フラグ
-     * ただしCScriptでの実行にのみ限る。
+     * Standard output flag
+     * If flag is True, to show the name of the file being processed.
+     * However, limited only to run on CScript.
      * true: 処理実行中に対象のファイル・フォルダのフルパスを標準出力する。
      * false: 標準出力を行わない。
      */
     var verbose = false;
-    
-    this.verboseEnable = function(){
+
+    this.enableVerbose = function(){
         verbose = true;
     }
     
-    this.verboseDisable = function(){
+    this.disableVerbose = function(){
         verbose = false;
     }
-    
-    this.getVerbose = function(){
-        return verbose;
-    }
-    
-    
+
+
+
     /**
-     * ファイルに対して処理を実施した回数カウンタ
+     * Counter of performing the processing on the file
      */
     var doneCount = 0;
 
 
 
     /**
-     * メイン処理
-     * @throws
-     **/
+     * Main processing
+     */
     this.exec = function( args ){
-        if( args.length == 0 ){ WScript.Echo("パラメータがありません。"); }
+        if( args.length == 0 ){ WScript.Echo("Parameters is nothing."); }
         doneCount = 0;
-        this.initialize();
+        this.initialize(args);
         recursive( args );
         this.finalize( args );
     };
@@ -127,7 +127,8 @@ function RecursiveFile(){
     
     
     /**
-     * 初期化処理
+     * Initializing process
+     * @param args Targets file path.
      */
     this.initialize = function( args ){
         // require implement
@@ -136,9 +137,9 @@ function RecursiveFile(){
 
 
     /**
-     * ファイル探索処理
-     * @param args ファイルパスのコレクション
-     * @param nowDepth サブフォルダの階層。指定値がない場合0となる。
+     * File search process
+     * @param args Collection of file path
+     * @param nowDepth Depth hierarchy of subfolders。
      */
     function recursive ( args, nowDepth ){
         nowDepth = nowDepth === undefined ? 0 : nowDepth;
@@ -168,57 +169,67 @@ function RecursiveFile(){
         }
     };
 
+
+
     /**
-     * ファイルに対する処理のプロセス管理
-     * ファイル名のパターンマッチおよび、ファイルへ実行処理への引渡しを行う。
-     * @param path 対象ファイルパス
+     * Process management of processing the files
+     * And filename pattern matching, to perform the delivery of your operation.
+     * @param path Target file path
      */
     function processFile( path ){
-        if( checkPaternMatch(path) ){
-            if(verbose && checkWScript() == false){ WScript.Echo(path); }
+        if( checkPatternMatch(path) ){
+            if(verbose && isCScript()){ WScript.Echo(path); }
             self.execFile(path);
             doneCount++;
         }
     };
 
+
+
     /**
-     * ファイル名のパターンマッチチェック
-     * @param path チェック対象ファイルパス
-     * @retun boolean チェック結果
-     *     true: チェックOK  false: チェックNG
+     * Pattern matching check in the file name
+     * @param path Check the target file path
+     * @retun boolean Check result
+     *     true: Check OK  false: Check NG
      */
-    function checkPaternMatch( path ){
+    function checkPatternMatch( path ){
         var fso = new ActiveXObject("Scripting.FileSystemObject");
         var checkTarget = fso.GetFileName(path);
-        for(var i=0, len=aryPatern.length; i<len; i++){
-            if( aryPatern[i]=="*"){ return true; }
-            var reg = new RegExp(aryPatern[i], "igm");
+        for(var i=0, len=aryPattern.length; i<len; i++){
+            if( aryPattern[i]=="*"){ return true; }
+            var reg = new RegExp(aryPattern[i], "igm");
             if( reg.test(path) ){ return true; }
         }
         return false;
     };
 
+
+
     /**
-     * ファイルに対する処理
-     * @param path 処理対象ファイルパス
+     * The process for the file
+     * @param path Processed file path
      */
     this.execFile = function( path ){
         // require implement
     };
 
+
+
     /**
-     * 不明なファイルに対する処理
-     * 存在しないファイルまたは、移動や削除などによりパスが変更になった場合本処理が動作する。
-     * @param path 不明なファイルのパス
+     * Actions to be performed with an unknown file
+     * Or file does not exist, processing if this path is changed or deleted by the move to work.
+     * @param path Path of an unknown file
      */
     this.execUnknown = function( path ){
-        if(verbose && checkWScript() == false){
-            WScript.Echo("次のファイルは移動または削除されました。 " + path);
+        if(verbose && isCScript() == false){
+            WScript.Echo("The following files have been moved or deleted. " + path);
         }
     };
 
+
+
     /**
-     * エラー処理
+     * Error handling
      * @param ex Exception
      */
     this.resolveError = function( ex, path ){
@@ -226,24 +237,27 @@ function RecursiveFile(){
         WScript.Echo( ex + "\n" + ex.description + "\n" + path );
     };  
 
+
+
     /**
-     * 終了処理
-     * @param args 処理対象ファイルパス
+     * End processing
+     * @param args Targets file path.
      */
     this.finalize = function( args ){
         // require implement
     };
-    
+
+
+
     /**
-     * WScript/CScriptのチェック
+     * Check the WScript / CScript
      */
-    function checkWScript(){
-        return /WScript.exe/im.test(WScript.FullName);
+    function isCScript(){
+        return /cscript.exe/im.test(WScript.FullName);
     }
 };
 
-var dbg = new RecursiveFile;
-dbg.setDepth(1);
-dbg.verboseEnable();
-dbg.exec(WScript.arguments);
-
+//var dbg = new RecursiveFile;
+//dbg.setDepth(1);
+//dbg.enableVerbose();
+//dbg.exec(WScript.arguments);
