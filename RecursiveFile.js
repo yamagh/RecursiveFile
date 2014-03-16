@@ -91,8 +91,6 @@ function RecursiveFile(){
      * Standard output flag
      * If flag is True, to show the name of the file being processed.
      * However, limited only to run on CScript.
-     * true: 処理実行中に対象のファイル・フォルダのフルパスを標準出力する。
-     * false: 標準出力を行わない。
      */
     var verbose = false;
 
@@ -139,7 +137,7 @@ function RecursiveFile(){
     /**
      * File search process
      * @param args Collection of file path
-     * @param nowDepth Depth hierarchy of subfolders。
+     * @param nowDepth Depth hierarchy of subfolders.
      */
     function recursive ( args, nowDepth ){
         nowDepth = nowDepth === undefined ? 0 : nowDepth;
